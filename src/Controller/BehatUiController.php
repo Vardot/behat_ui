@@ -6,6 +6,7 @@ use Drupal\Core\Controller\ControllerBase;
 use Symfony\Component\HttpFoundation\Request;
 use Drupal\Component\Utility\Xss;
 use Drupal\Core\Url;
+use Drupal\Core\Mail\MailFormatHelper;
 use Drupal\Core\Config\ConfigFactory;
 use Drupal\Core\Messenger\MessengerInterface;
 use Drupal\Core\TempStore\PrivateTempStoreFactory;
@@ -152,8 +153,8 @@ class BehatUiController extends ControllerBase {
     $report_url = new Url('behat_ui.report');
     $output = '<iframe id="behat-ui-output-iframe" src="' . $this->currentRequest->getSchemeAndHttpHost() . $report_url->toString() . '" width="100%" height="100%"></iframe>';
 
-    $beaht_ui_tempstore_collection = $this->tempStore->get('behat_ui');
-    $pid = $beaht_ui_tempstore_collection->get('behat_ui_pid');
+    $behat_ui_tempstore_collection = $this->tempStore->get('behat_ui');
+    $pid = $behat_ui_tempstore_collection->get('behat_ui_pid');
 
     if ($pid && posix_kill(intval($pid), 0)) {
 
@@ -205,15 +206,15 @@ class BehatUiController extends ControllerBase {
    */
   public function kill() {
     $response = FALSE;
-    $beaht_ui_tempstore_collection = $this->tempStore->get('behat_ui');
-    $pid = $beaht_ui_tempstore_collection->get('behat_ui_pid');
+    $behat_ui_tempstore_collection = $this->tempStore->get('behat_ui');
+    $pid = $behat_ui_tempstore_collection->get('behat_ui_pid');
 
     if ($pid && posix_kill(intval($pid), 0)) {
       try {
         $response = posix_kill($pid, SIGKILL);
-        $beaht_ui_tempstore_collection->delete('behat_ui_pid');
+        $behat_ui_tempstore_collection->delete('behat_ui_pid');
       }
-      catch (Exception $e) {
+      catch (\Exception $e) {
         $response = FALSE;
       }
     }
@@ -234,26 +235,23 @@ class BehatUiController extends ControllerBase {
         'Content-Disposition' => 'attachment; filename="behat_ui_output.' . $format . '"',
       ];
 
-      foreach ($headers as $key => $value) {
-        drupal_add_http_header($key, $value);
-      }
-
       if ($format === 'html') {
         $behat_ui_html_report_dir = $config->get('behat_ui_html_report_dir');
         $output = $behat_ui_html_report_dir . '/index.html';
-        readfile($output);
+        $content = file_get_contents($output);
       }
-      elseif ($format === 'txt') {
-        drupal_add_http_header('Connection', 'close');
+      else {
+        $headers['Connection'] = 'close';
         $behat_ui_log_report_dir = $config->get('behat_ui_log_report_dir');
         $output = $behat_ui_log_report_dir . '/bethat-ui-test.log';
         $plain = file_get_contents($output);
-        echo drupal_html_to_text($plain);
+        $content = MailFormatHelper::htmlToText($plain);
       }
+      return new Response($content, 200, $headers);
     }
     else {
       $this->messenger->addError($this->t('Output file not found. Please run the tests again in order to generate it.'));
-      drupal_goto('behat_ui.run_tests');
+      return $this->redirect('behat_ui.run_tests');
     }
   }
 
@@ -324,21 +322,21 @@ class BehatUiController extends ControllerBase {
    */
   public function formatBehatSteps($behatSteps, $formatCodeBeginValue = '<code>', $formatCodeEndBeginValue = '</code><br /><hr /><code>') {
 
-    $formatedBehatSteps = str_replace('Given ', '<b>Given</b> ', $behatSteps);
-    $formatedBehatSteps = str_replace('When ', '<b>When</b> ', $formatedBehatSteps);
-    $formatedBehatSteps = str_replace('Then ', '<b>Then</b> ', $formatedBehatSteps);
-    $formatedBehatSteps = str_replace('And ', '<b>And</b> ', $formatedBehatSteps);
-    $formatedBehatSteps = str_replace('But ', '<b>But</b> ', $formatedBehatSteps);
+    $formattedBehatSteps = str_replace('Given ', '<b>Given</b> ', $behatSteps);
+    $formattedBehatSteps = str_replace('When ', '<b>When</b> ', $formattedBehatSteps);
+    $formattedBehatSteps = str_replace('Then ', '<b>Then</b> ', $formattedBehatSteps);
+    $formattedBehatSteps = str_replace('And ', '<b>And</b> ', $formattedBehatSteps);
+    $formattedBehatSteps = str_replace('But ', '<b>But</b> ', $formattedBehatSteps);
 
-    $formatedBehatSteps = str_replace('Given|', '<b>Given</b>|', $behatSteps);
-    $formatedBehatSteps = str_replace('When|', '<b>When</b>|', $formatedBehatSteps);
-    $formatedBehatSteps = str_replace('Then|', '<b>Then</b>|', $formatedBehatSteps);
-    $formatedBehatSteps = str_replace('And|', '<b>And</b>|', $formatedBehatSteps);
-    $formatedBehatSteps = str_replace('But|', '<b>But</b>|', $formatedBehatSteps);
+    $formattedBehatSteps = str_replace('Given|', '<b>Given</b>|', $behatSteps);
+    $formattedBehatSteps = str_replace('When|', '<b>When</b>|', $formattedBehatSteps);
+    $formattedBehatSteps = str_replace('Then|', '<b>Then</b>|', $formattedBehatSteps);
+    $formattedBehatSteps = str_replace('And|', '<b>And</b>|', $formattedBehatSteps);
+    $formattedBehatSteps = str_replace('But|', '<b>But</b>|', $formattedBehatSteps);
 
-    $formatedBehatSteps = $formatCodeBeginValue . str_replace('default |', $formatCodeEndBeginValue, $formatedBehatSteps);
+    $formattedBehatSteps = $formatCodeBeginValue . str_replace('default |', $formatCodeEndBeginValue, $formattedBehatSteps);
 
-    return $formatedBehatSteps;
+    return $formattedBehatSteps;
   }
 
   public function getDefinitionStepsJson() {

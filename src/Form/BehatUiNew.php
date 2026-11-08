@@ -241,7 +241,7 @@ class BehatUiNew extends FormBase {
     $features_default_value = 'default';
     if (count($features_options) > 0) {
       if (!isset($features_options['default'])) {
-        $features_default_value = array_key_first(array($features_default_value));
+        $features_default_value = array_key_first([$features_default_value]);
       }
     }
     $form['behat_ui_new_scenario']['behat_ui_feature'] = [
@@ -296,8 +296,8 @@ class BehatUiNew extends FormBase {
    * {@inheritdoc}
    */
   public function submitForm(array &$form, FormStateInterface $form_state) {
-    $triggerdElement = $form_state->getTriggeringElement();
-    $htmlIdofTriggeredElement = $triggerdElement['#id'];
+    $triggeredElement = $form_state->getTriggeringElement();
+    $htmlIdOfTriggeredElement = $triggeredElement['#id'];
 
     $config = $this->configFactory->getEditable('behat_ui.settings');
 
@@ -305,7 +305,7 @@ class BehatUiNew extends FormBase {
     $behat_ui_behat_features_path = $config->get('behat_ui_behat_features_path');
     $behat_ui_editing_mode = $config->get('behat_ui_editing_mode');
 
-    if ($htmlIdofTriggeredElement == 'edit-behat-ui-create') {
+    if ($htmlIdOfTriggeredElement == 'edit-behat-ui-create') {
       $formValues = $form_state->getValues();
 
       $file = $behat_ui_behat_config_path . '/' . $behat_ui_behat_features_path . '/' . $formValues['behat_ui_feature'] . '.feature';
@@ -386,7 +386,7 @@ class BehatUiNew extends FormBase {
     }
     else {
       return '
-        Feature: Website requeirment: Website home page.
+        Feature: Website requirement: Website home page.
           As a visitor to the website 
           I want to navigate to the home page
           So that I will be able to see all homepage content

@@ -204,7 +204,7 @@ class BehatUiSettings extends ConfigFormBase {
       '#default_value' => $config->get('behat_ui_behat_tags'),
       '#cols' => 60,
       '#rows' => 10,
-      '#description' => $this->t('Scenarios are tagged with the Behat tags to limit the selection of scnarios based on needed test or what change in the tested site.<br />
+      '#description' => $this->t('Scenarios are tagged with the Behat tags to limit the selection of scenarios based on needed test or what change in the tested site.<br />
        <b>For Example:</b><br />
         <br /> <b>Actions:</b>
         <ul>
@@ -213,10 +213,10 @@ class BehatUiSettings extends ConfigFormBase {
         </ul>
         <br /> <b>Environment:</b>
         <ul>
-          <li>[ local|Local ] <b>@local</b> = Recommanded to run scenarios only in Local development workstations.</li>
-          <li>[ development|Development ] <b>@development</b> = Recommanded to run scenarios only in Development servers.</li>
-          <li>[ staging|Staging and testing ] <b>@staging</b> = Recommanded to run scenarios only in Staging and testing servers.</li>
-          <li>[ production|Production ] <b>@production</b> = Recommanded to run scenarios only in Production live servers.</li>
+          <li>[ local|Local ] <b>@local</b> = Recommended to run scenarios only in Local development workstations.</li>
+          <li>[ development|Development ] <b>@development</b> = Recommended to run scenarios only in Development servers.</li>
+          <li>[ staging|Staging and testing ] <b>@staging</b> = Recommended to run scenarios only in Staging and testing servers.</li>
+          <li>[ production|Production ] <b>@production</b> = Recommended to run scenarios only in Production live servers.</li>
         </ul>
         <br /> <b>Other:</b> you may have your behat tags and flags for your custom usage.
         <ul>
@@ -280,7 +280,7 @@ class BehatUiSettings extends ConfigFormBase {
    *   The list of allowed values in string format described in
    *   optionsExtractAllowedValues().
    *
-   * @return arraynull
+   * @return array|null
    *   The array of extracted key/value pairs, or NULL if the string is invalid.
    *
    * @see optionsExtractAllowedListTextValues()

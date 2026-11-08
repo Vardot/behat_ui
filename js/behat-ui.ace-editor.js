@@ -3,36 +3,38 @@
  * Behat UI Ace Editor.
  */
 
+/* global ace */
+
 (function ($, Drupal) {
   Drupal.behaviors.behatUiAceEditor = {
     attach() {
-      if (typeof ace === "undefined" || typeof ace.edit !== "function") {
+      if (typeof ace === 'undefined' || typeof ace.edit !== 'function') {
         return;
       }
 
-      const editor = ace.edit("free_text_ace_editor");
-      editor.getSession().setMode("ace/mode/gherkin");
+      const editor = ace.edit('free_text_ace_editor');
+      editor.getSession().setMode('ace/mode/gherkin');
       editor.getSession().setTabSize(2);
 
-      editor.setOption("autoScrollEditorIntoView", "always");
-      editor.setOption("mergeUndoDeltas", "always");
-      editor.setOption("hScrollBarAlwaysVisible", true);
-      editor.setOption("vScrollBarAlwaysVisible", true);
+      editor.setOption('autoScrollEditorIntoView', 'always');
+      editor.setOption('mergeUndoDeltas', 'always');
+      editor.setOption('hScrollBarAlwaysVisible', true);
+      editor.setOption('vScrollBarAlwaysVisible', true);
 
       // Add command to lazy-load keybinding_menu extension.
-      ace.require("ace/ext/keybinding_menu");
+      ace.require('ace/ext/keybinding_menu');
       editor.commands.addCommand({
-        name: "showKeyboardShortcuts",
-        bindKey: { win: "Ctrl-Alt-h", mac: "Command-Alt-h" },
+        name: 'showKeyboardShortcuts',
+        bindKey: { win: 'Ctrl-Alt-h', mac: 'Command-Alt-h' },
         exec(editor) {
-          ace.config.loadModule("ace/ext/keybinding_menu", function (module) {
+          ace.config.loadModule('ace/ext/keybinding_menu', function (module) {
             module.init(editor);
             editor.showKeyboardShortcuts();
           });
         },
       });
 
-      const behat_ui_language_tools = ace.require("ace/ext/language_tools");
+      const behatUiLanguageTools = ace.require('ace/ext/language_tools');
 
       editor.setOptions({
         enableBasicAutocompletion: false,
@@ -40,7 +42,7 @@
 
       const behatUICompleter = {
         getCompletions(editor, session, pos, prefix, callback) {
-          const gList = ["Given", "When", "Then", "And", "But"];
+          const gList = ['Given', 'When', 'Then', 'And', 'But'];
 
           if (prefix.length === 0) {
             callback(null, []);
@@ -52,7 +54,7 @@
           }
 
           $.getJSON(
-            Drupal.url("admin/config/development/behat-ui/behat-dl-json"),
+            Drupal.url('admin/config/development/behat-ui/behat-dl-json'),
             function (behatUiList) {
               callback(
                 null,
@@ -61,33 +63,33 @@
                     name: prefix + behatUiItem,
                     value: prefix + behatUiItem,
                   };
-                })
+                }),
               );
-            }
+            },
           );
         },
       };
 
       const keyBehatList = [
-        "Feature: ",
-        "Background: ",
-        "Scenario: ",
-        "Outline ",
-        "Examples ",
-        "Given ",
-        "When ",
-        "Then",
-        "And ",
-        "But",
-        "@javascript ",
-        "@api ",
-        "@check ",
-        "@local ",
-        "@development ",
-        "@staging ",
-        "@production ",
-        "@init ",
-        "@cleanup ",
+        'Feature: ',
+        'Background: ',
+        'Scenario: ',
+        'Outline ',
+        'Examples ',
+        'Given ',
+        'When ',
+        'Then',
+        'And ',
+        'But',
+        '@javascript ',
+        '@api ',
+        '@check ',
+        '@local ',
+        '@development ',
+        '@staging ',
+        '@production ',
+        '@init ',
+        '@cleanup ',
       ];
 
       const keyBehatUICompleter = {
@@ -99,12 +101,12 @@
                 name: keyBehatUiItem,
                 value: keyBehatUiItem,
               };
-            })
+            }),
           );
         },
       };
 
-      behat_ui_language_tools.setCompleters([
+      behatUiLanguageTools.setCompleters([
         behatUICompleter,
         keyBehatUICompleter,
       ]);
@@ -113,15 +115,18 @@
         enableBasicAutocompletion: true,
       });
 
-      editor.getSession().on("change", function () {
-        $(".free-text-ace-editor").val(editor.getSession().getValue());
+      editor.getSession().on('change', function () {
+        $('.free-text-ace-editor').prop(
+          'value',
+          editor.getSession().getValue(),
+        );
       });
 
-      editor.getSession().setValue($(".free-text-ace-editor").val());
+      editor.getSession().setValue($('.free-text-ace-editor').prop('value'));
 
       // When the form fails to validate because the text area is required,
       // shift the focus to the editor.
-      $(".free-text-ace-editor").on("focus", function () {
+      $('.free-text-ace-editor').on('focus', function () {
         editor.getSession().textInput.focus();
       });
     },

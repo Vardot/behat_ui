@@ -9,6 +9,7 @@ use Drupal\Core\Url;
 use Drupal\Core\Config\ConfigFactory;
 use Drupal\Core\Messenger\MessengerInterface;
 use Drupal\Core\TempStore\PrivateTempStoreFactory;
+use Symfony\Component\Process\Exception\ProcessFailedException;
 use Symfony\Component\Process\Process;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\HttpFoundation\Request;
@@ -260,7 +261,7 @@ class BehatUiRunTests extends FormBase {
       try {
         $process->start();
         $new_pid = $process->getPid() + 1;
-        $this->messenger->addMessage($this->t("Started running tests using prcess ID: @pid", ["@pid" => $new_pid]));
+        $this->messenger->addMessage($this->t("Started running tests using process ID: @pid", ["@pid" => $new_pid]));
         $behat_ui_tempstore_collection->set('behat_ui_pid', $new_pid);
 
         if (!$process->isSuccessful()) {
